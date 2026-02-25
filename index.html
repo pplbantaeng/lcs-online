@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LCS_BANTAENG_V4.1_FINAL_STABLE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+/* ===== PHOTO PREVIEW PATCH (V4 UI FRIENDLY) ===== */
+document.addEventListener("change", function(e){
+  if(e.target && e.target.type === "file"){
+    const file = e.target.files[0];
+    const img = e.target.parentElement.querySelector(".preview");
+    if(file && img){
+      const reader = new FileReader();
+      reader.onload = ev => img.src = ev.target.result;
+      reader.readAsDataURL(file);
+    }
+  }
+});
+
+</script>
+
+<style>
+body{font-family:Arial;margin:0;background:#fff;}
+.splash{position:fixed;top:0;left:0;width:100%;height:100%;
+background:#1b5e20;color:#fff;display:flex;align-items:center;
+justify-content:center;font-size:22px;z-index:9999;text-align:center;}
+.container{padding:15px;}
+.kop{text-align:center;font-weight:bold;background:#cfcfcf;padding:14px;}
+.info-table{width:100%;border-collapse:collapse;margin-top:18px;}
+.info-table td{padding:4px;}
+.label{width:220px;}
+.keterangan{font-size:12px;color:#b30000;font-style:italic;}
+table.main{width:100%;border-collapse:collapse;margin-top:4px;}
+.main th,.main td{border:1px solid #000;padding:5px;vertical-align:top;}
+.main th{background:#bfbfbf;text-align:center;}
+.bigrow{height:260px;}
+input,select,textarea{width:100%;font-size:14px;padding:4px;border:1px solid #ccc;border-radius:4px;}
+textarea{resize:none;height:75px;}
+.preview{width:100%;height:220px;object-fit:contain;}
+button{margin-top:10px;padding:12px;background:#1b5e20;color:white;border:none;width:100%;font-size:16px;}
+.btnAdd{background:#1565c0;}
+</style>
+</head>
+
+<body>
+
+<div class="splash" id="splash">LCS BANTAENG V4.1<br>Memuat Aplikasi...</div>
+
+<div class="container">
+
+<div class="kop">
+LAPORAN PENDERASAN INFORMASI DAN PEMBANGUNAN PERTANIAN<br>
+PENYULUH PERTANIAN TAHUN 2026
+</div>
+
+<table class="info-table">
+<tr><td class="label">PERIODE</td><td>:</td>
+<td><select id="bulan"><option>FEBRUARI 2026</option></select></td></tr>
+
+<tr><td class="label">Kecamatan</td><td>:</td>
+<td><select id="kecamatan">
+<option value="">-- Pilih Kecamatan --</option>
+<option>BANTAENG</option><option>BISSAPPU</option><option>EREMERASA</option><option>GANTARANGKEKE</option><option>PAJUKUKANG</option><option>SINOA</option><option>TOMPOBULU</option><option>ULUERE</option>
+</select></td></tr>
+
+<tr><td class="label">Nama Penyuluh</td><td>:</td>
+<td><select id="nama"></select></td></tr>
+
+<tr><td class="label">NIP</td><td>:</td>
+<td><input type="text" id="nip" readonly></td></tr>
+
+<tr><td class="label">Wilayah Binaan</td><td>:</td>
+<td><input type="text" id="wilayah" readonly></td></tr>
+
+<tr>
+<td class="label">Wilayah Binaan (Tambah Manual)</td>
+<td>:</td>
+<td>
+<input type="text" id="wilayah_manual" placeholder="ISI HANYA JIKA PINDAH WILAYAH">
+<div class="keterangan">* Tidak perlu diisi jika wilayah sama dengan yang terpilih di atas</div>
+</td>
+</tr>
+
+<tr><td class="label">Kabupaten / Prov</td><td>:</td>
+<td><input type="text" value="BANTAENG / SUL-SEL" readonly></td></tr>
+</table>
+
+<table class="main" id="tabel">
+<tr>
+<th width="15%">Tanggal</th>
+<th width="18%">Judul Konten</th>
+<th colspan="3">EVIDEN</th>
+</tr>
+<tr>
+<th></th><th></th>
+<th width="22%">LIKE</th>
+<th width="22%">COMMENT</th>
+<th width="23%">SHARE</th>
+</tr>
+</table>
+
+<button class="btnAdd" id="btnTambah">➕ Tambah Baris</button>
+<button id="btnExport">EXPORT PDF</button>
+
+</div>
+
+<script>
+
+setTimeout(()=>{document.getElementById("splash").style.display="none";},900);
+
+const databasePenyuluh=[{"kecamatan": "BANTAENG", "nama": "ANDI MUH. AZHAR USMAN, SP", "nip": "199210032019031013", "wilayah": "DESA KAYU  LOE"}, {"kecamatan": "BANTAENG", "nama": "HARIATI, SP", "nip": "196804212006042018", "wilayah": "KEL.TAPPANJENG & KEL.LETTA"}, {"kecamatan": "BANTAENG", "nama": "HASNI HAKIM, S.Pt", "nip": "198107142012122004", "wilayah": "KEL.LAMALAKA"}, {"kecamatan": "BANTAENG", "nama": "KASMAWATI, SP, MP", "nip": "197207132008012006", "wilayah": "KEL.MALLILINGI"}, {"kecamatan": "BANTAENG", "nama": "MIRNAYATI AZIS, S.TP", "nip": "197902042010012009", "wilayah": "KEC.BANTAENG"}, {"kecamatan": "BANTAENG", "nama": "RAHAYU CAUMMAL BARACH, SP", "nip": "198702082011012010", "wilayah": "KEL.ONTO"}, {"kecamatan": "BANTAENG", "nama": "SHINTA EKA SUSIAWATI, SP", "nip": "197608242015032001", "wilayah": "KEL.PALLANTIKANG"}, {"kecamatan": "BANTAENG", "nama": "SRI WAHYUNI, SP", "nip": "198412072010012032", "wilayah": "KEL.KARATUANG"}, {"kecamatan": "BISSAPPU", "nama": "HAMSINAH, A.Md", "nip": "198007282015032001", "wilayah": "DESA BONTO SALLUANG"}, {"kecamatan": "BISSAPPU", "nama": "IRFAN, A.Md.Pi", "nip": "198407132017061001", "wilayah": "KEL.BONTO LEBANG"}, {"kecamatan": "BISSAPPU", "nama": "IRSAN, SE", "nip": "197807022007011015", "wilayah": "KEL.BONTO SUNGGU & KEL.BONTO ATU"}, {"kecamatan": "BISSAPPU", "nama": "MAWARNI NUR, SP, MP", "nip": "197705212010012010", "wilayah": "KEL.BONTO LANGKASA"}, {"kecamatan": "BISSAPPU", "nama": "MIRNA MAHMUD, SP", "nip": "198408132010012031", "wilayah": "KEL.BONTO MANAI"}, {"kecamatan": "BISSAPPU", "nama": "MUH. RIDWAN. M ,SP", "nip": "196909051994031009", "wilayah": "KEL.BONTO RITA"}, {"kecamatan": "BISSAPPU", "nama": "MUS MULYADI", "nip": "197411192007011013", "wilayah": "KEL.BONTO JAYA"}, {"kecamatan": "BISSAPPU", "nama": "RISNAWATI, SP", "nip": "198412052017062002", "wilayah": "DESA BONTO JAI"}, {"kecamatan": "BISSAPPU", "nama": "SARIBULAN, SP, MP", "nip": "197906152007012018", "wilayah": "DESA BONTO CINDE"}, {"kecamatan": "BISSAPPU", "nama": "SUHAEMI, S.Pt, MP", "nip": "197801192007012009", "wilayah": "KEC.BISSAPPU"}, {"kecamatan": "BISSAPPU", "nama": "SYAHRUN MUBARAK, SP, M.Si", "nip": "199212052019031009", "wilayah": "DESA BONTO LOE"}, {"kecamatan": "EREMERASA", "nama": "A. KAIMAL AHMAD, S.Pi", "nip": "197903012008011006", "wilayah": "DESA PABENTENGAN & DESA KAMPALA"}, {"kecamatan": "EREMERASA", "nama": "ALWI, SPt", "nip": "198006152011111001", "wilayah": "DESA MAPPILAWING"}, {"kecamatan": "EREMERASA", "nama": "BAKHTIAR, SP", "nip": "197601202009031002", "wilayah": "DESA BARUA"}, {"kecamatan": "EREMERASA", "nama": "MARDIATI, S.TP", "nip": "198303112017062001", "wilayah": "DESA MAMAMPANG"}, {"kecamatan": "EREMERASA", "nama": "NURFAAIDAH MADUNG, SP", "nip": "199307282015032002", "wilayah": "DESA LONRONG"}, {"kecamatan": "EREMERASA", "nama": "RAHMAWATY. H, SP", "nip": "198407042015032002", "wilayah": "DESA ULUGALUNG"}, {"kecamatan": "EREMERASA", "nama": "RIANA FATMAWATY, SP, MP", "nip": "197804292007012014", "wilayah": "KEC.EREMERASA"}, {"kecamatan": "EREMERASA", "nama": "SYAMSUDDIN, A.Md", "nip": "198308212008011001", "wilayah": "DESA PABUMBUNGAN & DESA PARANGLOE"}, {"kecamatan": "GANTARANGKEKE", "nama": "ANDI DIAN EKAWATI, SP", "nip": "198401122015032002", "wilayah": "DESA TOMBOLO"}, {"kecamatan": "GANTARANGKEKE", "nama": "ANDI RESKI MULYA UTAMI, SP", "nip": "199406122019032023", "wilayah": "KEL.TANAH  LOE"}, {"kecamatan": "GANTARANGKEKE", "nama": "HENDRA ASMARA, S,ST, M.Si", "nip": "197807242007011019", "wilayah": "KEL.GANTARANGKEKE"}, {"kecamatan": "GANTARANGKEKE", "nama": "NUR MELIA, SP, M.Si", "nip": "199203042019032020", "wilayah": "DESA KALOLING"}, {"kecamatan": "GANTARANGKEKE", "nama": "RISNAWATI, SP", "nip": "199002242021212001", "wilayah": "DESA LAYOA"}, {"kecamatan": "GANTARANGKEKE", "nama": "SITTI RAHWA, SP, M.Si", "nip": "197606292008012012", "wilayah": "DESA BAJIMINASA"}, {"kecamatan": "GANTARANGKEKE", "nama": "ADYAKBAR, STP, M.Si", "nip": "197702132008041001", "wilayah": "KEC.GANTARANGKEKE & KEC.PAJUKUKANG"}, {"kecamatan": "PAJUKUKANG", "nama": "ANDI ANDRIYANI MUSTAFA, SP", "nip": "198701172019032012", "wilayah": "DESA PAJUKUKANG"}, {"kecamatan": "PAJUKUKANG", "nama": "ANDI ARMININGSIH MUSTAFA, SP", "nip": "198905062019032020", "wilayah": "DESA BORONGLOE"}, {"kecamatan": "PAJUKUKANG", "nama": "ANDI IRMA, SP", "nip": "198705012025212025", "wilayah": "DESA BATU KARAENG"}, {"kecamatan": "PAJUKUKANG", "nama": "MARIA ULFA, S.Pt", "nip": "198301272025212017", "wilayah": "DESA RAPPOA"}, {"kecamatan": "PAJUKUKANG", "nama": "RAMLAH, SP", "nip": "199209242019032024", "wilayah": "DESA LUMPANGAN"}, {"kecamatan": "PAJUKUKANG", "nama": "REZAL MUHABIB SHALEH, SP", "nip": "198811282015031002", "wilayah": "DESA NIPA-NIPA"}, {"kecamatan": "PAJUKUKANG", "nama": "SRI WAHYUNI, S.TP", "nip": "198412032019032009", "wilayah": "DESA BIANGKEKE"}, {"kecamatan": "PAJUKUKANG", "nama": "ST. RAHMAWATI. S.", "nip": "199207142021212001", "wilayah": "DESA BIANGLOE"}, {"kecamatan": "PAJUKUKANG", "nama": "ZHULFITRANI BUSRAH, SP", "nip": "199203132019031011", "wilayah": "DESA BARUGA & DESA PAPANLOE"}, {"kecamatan": "SINOA", "nama": "ANDI AMALIA, SP", "nip": "199401312019032026", "wilayah": "DESA BONTO  TIRO"}, {"kecamatan": "SINOA", "nama": "DANIATI, SP", "nip": "199012302019032013", "wilayah": "DESA BONTO MATENE"}, {"kecamatan": "SINOA", "nama": "ILHAM. H, SP", "nip": "197411052007011014", "wilayah": "DESA BONTO MAJANNANG"}, {"kecamatan": "SINOA", "nama": "NURHIDAYAT, SP. M.Si", "nip": "196812162006041005", "wilayah": "DESA BT.MACCINI & DESA BT.BULAENG"}, {"kecamatan": "SINOA", "nama": "RAMLAH, SP", "nip": "198103292007012010", "wilayah": "DESA BONTO KARAENG"}, {"kecamatan": "TOMPOBULU", "nama": "ANDI NUR IKHSAN, SP", "nip": "197705182008011010", "wilayah": "KEL.BONTO-BONTOA"}, {"kecamatan": "TOMPOBULU", "nama": "BUDI A. MUBARAK, S.Pt, M.Si", "nip": "198209212009041005", "wilayah": "DESA LABBO"}, {"kecamatan": "TOMPOBULU", "nama": "HAMSINAH, SP", "nip": "197805052021212011", "wilayah": "KEL.CAMPAGA & DESA BONTO TAPPALANG"}, {"kecamatan": "TOMPOBULU", "nama": "HARITA, SP, M.Si", "nip": "197301132005022001", "wilayah": "KEC.TOMPOBULU"}, {"kecamatan": "TOMPOBULU", "nama": "IKA ASPIANA, SP", "nip": "199310102019032026", "wilayah": "DESA PATTALLASSANG"}, {"kecamatan": "TOMPOBULU", "nama": "INTAN MUSTIKA. B, SP", "nip": "198411052019032009", "wilayah": "KEL.LEMBANG GANTARANGKEKE"}, {"kecamatan": "TOMPOBULU", "nama": "MARDIATI, SP", "nip": "197301012021212006", "wilayah": "KEL.BANYORANG & KEL.ERENG-ERENG"}, {"kecamatan": "TOMPOBULU", "nama": "MUHAMMAD SAID, SP", "nip": "197210272014111003", "wilayah": "DESA BALUMBUNG & DESA PATTANETEANG"}, {"kecamatan": "ULUERE", "nama": "AKHRIANI RACHIM, S.Pt, M.Si", "nip": "198409022010012028", "wilayah": "DESA BONTO MARANNU"}, {"kecamatan": "ULUERE", "nama": "ANDI MUH.IKBAL, SP", "nip": "198212112011011012", "wilayah": "DESA BONTO  LOJONG"}, {"kecamatan": "ULUERE", "nama": "EDYANTO, S.Pt", "nip": "197902222025211012", "wilayah": "DESA BONTO TALLASA"}, {"kecamatan": "ULUERE", "nama": "M. HASBULLAH, S.Pt", "nip": "198406102011111001", "wilayah": "DESA BT.DAENG & DESA BT.TANGNGA"}, {"kecamatan": "ULUERE", "nama": "SAHRUL, S.Pt", "nip": "198005112025211022", "wilayah": "DESA BONTO RANNU"}];
+const kecamatanSelect=document.getElementById("kecamatan");
+const namaSelect=document.getElementById("nama");
+
+kecamatanSelect.onchange=function(){
+ namaSelect.innerHTML="";
+ const filtered=databasePenyuluh.filter(p=>p.kecamatan===this.value);
+ filtered.forEach(p=>{
+  const opt=document.createElement("option");
+  opt.value=p.nama;
+  opt.textContent=p.nama;
+  opt.dataset.nip=p.nip;
+  opt.dataset.wilayah=p.wilayah;
+  namaSelect.appendChild(opt);
+ });
+};
+
+namaSelect.onchange=function(){
+ const opt=this.options[this.selectedIndex];
+ document.getElementById("nip").value=opt.dataset.nip||"";
+ document.getElementById("wilayah").value=opt.dataset.wilayah||"";
+};
+
+function tambahBaris(){
+const tabel=document.getElementById("tabel");
+const tr=document.createElement("tr");
+tr.className="bigrow";
+
+tr.innerHTML=`
+<td><input type="date" class="tanggal"></td>
+<td><textarea class="judul"></textarea></td>
+<td><input type="file" class="like" accept="image/*"><img class="preview" style="width:100%;height:220px;object-fit:contain;margin-top:4px;"><img class="preview"></td>
+<td><input type="file" class="comment" accept="image/*"><img class="preview" style="width:100%;height:220px;object-fit:contain;margin-top:4px;"><img class="preview"></td>
+<td><input type="file" class="share" accept="image/*"><img class="preview" style="width:100%;height:220px;object-fit:contain;margin-top:4px;"><img class="preview"></td>
+`;
+
+tabel.appendChild(tr);
+
+const today=new Date();
+const yyyy=today.getFullYear();
+const mm=String(today.getMonth()+1).padStart(2,'0');
+const dd=String(today.getDate()).padStart(2,'0');
+tr.querySelector(".tanggal").value=`${yyyy}-${mm}-${dd}`;
+}
+
+tambahBaris();
+document.getElementById("btnTambah").onclick=tambahBaris;
+
+// ===== EXPORT PDF ENGINE RESTORED =====
+document.getElementById("btnExport").onclick=exportPDF;
+
+function processImage(file){
+ return new Promise(res=>{
+  if(!file){res(null);return;}
+  const reader=new FileReader();
+  reader.onload=()=>res(reader.result);
+  reader.readAsDataURL(file);
+ });
+}
+
+function formatTanggalIndonesia(tgl){
+ const bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+ const d=new Date(tgl);
+ return d.getDate()+" "+bulan[d.getMonth()]+" "+d.getFullYear();
+}
+
+function drawHeader(doc, bulan, nama, nip, wilayahFinal, kecamatan){
+doc.setFontSize(12);
+doc.text("LAPORAN PENDERASAN INFORMASI DAN PEMBANGUNAN PERTANIAN",105,16,{align:"center"});
+doc.text("PENYULUH PERTANIAN TAHUN 2026",105,22,{align:"center"});
+
+doc.setFontSize(9);
+doc.text("PERIODE",17,28); doc.text(":",52,28); doc.text(bulan,55,28);
+doc.text("Nama Penyuluh",17,33); doc.text(":",52,33); doc.text(nama,55,33);
+doc.text("NIP",17,38); doc.text(":",52,38); doc.text(nip,55,38);
+doc.text("Wilayah Binaan",17,43); doc.text(":",52,43); doc.text(wilayahFinal,55,43);
+doc.text("Kecamatan",17,48); doc.text(":",52,48); doc.text(kecamatan,55,48);
+doc.text("Kabupaten",17,53); doc.text(":",52,53); doc.text("BANTAENG / SUL-SEL",55,53);
+}
+
+async function exportPDF(){
+
+const { jsPDF }=window.jspdf;
+const doc=new jsPDF("p","mm","a4");
+
+const bulan=document.getElementById("bulan").value;
+const nama=document.getElementById("nama").value || "PENYULUH";
+const nip=document.getElementById("nip").value;
+const wilayah=document.getElementById("wilayah").value;
+const wilayahManual=document.getElementById("wilayah_manual").value;
+const kecamatan=document.getElementById("kecamatan").value;
+let wilayahFinal=wilayahManual?wilayahManual:wilayah;
+
+drawHeader(doc,bulan,nama,nip,wilayahFinal,kecamatan);
+
+let y=66;
+const rowHeight=65;
+
+function drawTableHeader(){
+doc.setFillColor(191,191,191);
+doc.rect(17,y,25,8,"FD");
+doc.rect(42,y,40,8,"FD");
+doc.rect(82,y,40,8,"FD");
+doc.rect(122,y,40,8,"FD");
+doc.rect(162,y,40,8,"FD");
+
+doc.text("Tanggal",19,y+5);
+doc.text("Judul Konten",44,y+5);
+doc.text("LIKE",92,y+5);
+doc.text("COMMENT",132,y+5);
+doc.text("SHARE",172,y+5);
+y+=8;
+}
+
+drawTableHeader();
+
+const rows=document.querySelectorAll("#tabel tr.bigrow");
+let rowCount=0;
+
+for(const row of rows){
+if(rowCount===3){
+doc.addPage();
+drawHeader(doc,bulan,nama,nip,wilayahFinal,kecamatan);
+y=66;
+drawTableHeader();
+rowCount=0;
+}
+
+const tanggal=formatTanggalIndonesia(row.querySelector(".tanggal").value);
+const judul=row.querySelector(".judul").value;
+const splitJudul=doc.splitTextToSize(judul,38);
+
+doc.rect(17,y,25,rowHeight);
+doc.rect(42,y,40,rowHeight);
+doc.rect(82,y,40,rowHeight);
+doc.rect(122,y,40,rowHeight);
+doc.rect(162,y,40,rowHeight);
+
+doc.setFontSize(7);
+doc.text(tanggal,19,y+4);
+doc.text(splitJudul,44,y+4);
+
+const like=await processImage(row.querySelector(".like").files[0]);
+if(like) doc.addImage(like,"JPEG",84,y+2,36,rowHeight-4);
+
+const comment=await processImage(row.querySelector(".comment").files[0]);
+if(comment) doc.addImage(comment,"JPEG",124,y+2,36,rowHeight-4);
+
+const share=await processImage(row.querySelector(".share").files[0]);
+if(share) doc.addImage(share,"JPEG",164,y+2,36,rowHeight-4);
+
+y+=rowHeight;
+rowCount++;
+}
+
+const totalPages=doc.getNumberOfPages();
+doc.setFontSize(9);
+for(let i=1;i<=totalPages;i++){
+doc.setPage(i);
+doc.text("LCS_Bantaeng_V4.1",17,290);
+doc.text(`Hal ${i} dari ${totalPages}`,193,290,{align:"right"});
+}
+
+const today=new Date();
+const dd=String(today.getDate()).padStart(2,'0');
+const mm=String(today.getMonth()+1).padStart(2,'0');
+const yyyy=today.getFullYear();
+const defaultName=`LCS_${nama.replace(/\s+/g,'_').toUpperCase()}_${dd}${mm}${yyyy}`;
+
+let namaFile=prompt("Nama File:", defaultName);
+if(!namaFile) return;
+
+const blobUrl = doc.output("bloburl");
+window.open(blobUrl);
+doc.save(namaFile+".pdf");
+}
+
+
+/* ===============================
+   V4.16 PHOTO PATCH (STABLE SAFE)
+   - Fix EXIF orientation issue
+   - Compress image to ~1200px
+   - Keep visual size SAME in PDF
+================================= */
+
+async function processImage(file){
+ return new Promise(resolve=>{
+  if(!file){ resolve(null); return; }
+
+  const img = new Image();
+  const reader = new FileReader();
+
+  reader.onload = e => img.src = e.target.result;
+  reader.readAsDataURL(file);
+
+  img.onload = function(){
+
+    const maxSize = 1200; // target size
+    let w = img.width;
+    let h = img.height;
+
+    // resize but keep ratio
+    if(w > maxSize || h > maxSize){
+      const scale = Math.min(maxSize / w, maxSize / h);
+      w = w * scale;
+      h = h * scale;
+    }
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = w;
+    canvas.height = h;
+
+    ctx.drawImage(img,0,0,w,h);
+
+    // JPEG quality 0.6 (target <2MB PDF)
+    resolve(canvas.toDataURL("image/jpeg",0.6));
+  };
+ });
+}
+
+
+/* ===== PHOTO PREVIEW PATCH (V4 UI FRIENDLY) ===== */
+document.addEventListener("change", function(e){
+  if(e.target && e.target.type === "file"){
+    const file = e.target.files[0];
+    const img = e.target.parentElement.querySelector(".preview");
+    if(file && img){
+      const reader = new FileReader();
+      reader.onload = ev => img.src = ev.target.result;
+      reader.readAsDataURL(file);
+    }
+  }
+});
+
+</script>
+</body>
+</html>
