@@ -2,15 +2,9 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Supaya tampil seperti aplikasi -->
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#2e7d32">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LCS_BANTAENG_V4.1_FINAL_STABLE</title>
+<title>LCS_BANTAENG_V4.1</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
 /* ===== PHOTO PREVIEW PATCH (V4 UI FRIENDLY) ===== */
 document.addEventListener("change", function(e){
@@ -21,6 +15,30 @@ document.addEventListener("change", function(e){
       const reader = new FileReader();
       reader.onload = ev => img.src = ev.target.result;
       reader.readAsDataURL(file);
+    }
+  }
+});
+
+
+/* ===== AUTO SELECT CURRENT MONTH (V4.1 PATCH) ===== */
+document.addEventListener("DOMContentLoaded", function(){
+  const bulanSelect = document.getElementById("bulan");
+  if(!bulanSelect) return;
+
+  const bulanNama = [
+    "JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI",
+    "JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"
+  ];
+
+  const today = new Date();
+  const currentMonth = bulanNama[today.getMonth()];
+  const currentYear = today.getFullYear();
+  const target = currentMonth + " " + currentYear;
+
+  for(let i=0;i<bulanSelect.options.length;i++){
+    if(bulanSelect.options[i].text === target){
+      bulanSelect.selectedIndex = i;
+      break;
     }
   }
 });
@@ -63,7 +81,22 @@ PENYULUH PERTANIAN TAHUN 2026
 
 <table class="info-table">
 <tr><td class="label">PERIODE</td><td>:</td>
-<td><select id="bulan"><option>FEBRUARI 2026</option></select></td></tr>
+<td>
+<select id="bulan">
+<option>JANUARI 2026</option>
+<option>FEBRUARI 2026</option>
+<option>MARET 2026</option>
+<option>APRIL 2026</option>
+<option>MEI 2026</option>
+<option>JUNI 2026</option>
+<option>JULI 2026</option>
+<option>AGUSTUS 2026</option>
+<option>SEPTEMBER 2026</option>
+<option>OKTOBER 2026</option>
+<option>NOVEMBER 2026</option>
+<option>DESEMBER 2026</option>
+</select>
+</td></tr>
 
 <tr><td class="label">Kecamatan</td><td>:</td>
 <td><select id="kecamatan">
@@ -348,6 +381,30 @@ document.addEventListener("change", function(e){
       const reader = new FileReader();
       reader.onload = ev => img.src = ev.target.result;
       reader.readAsDataURL(file);
+    }
+  }
+});
+
+
+/* ===== AUTO SELECT CURRENT MONTH (V4.1 PATCH) ===== */
+document.addEventListener("DOMContentLoaded", function(){
+  const bulanSelect = document.getElementById("bulan");
+  if(!bulanSelect) return;
+
+  const bulanNama = [
+    "JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI",
+    "JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"
+  ];
+
+  const today = new Date();
+  const currentMonth = bulanNama[today.getMonth()];
+  const currentYear = today.getFullYear();
+  const target = currentMonth + " " + currentYear;
+
+  for(let i=0;i<bulanSelect.options.length;i++){
+    if(bulanSelect.options[i].text === target){
+      bulanSelect.selectedIndex = i;
+      break;
     }
   }
 });
